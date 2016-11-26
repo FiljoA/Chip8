@@ -13,8 +13,10 @@ configure_file (
 
 include_directories("${PROJECT_BINARY_DIR}")
 
-set(SRCS main.cpp
-	     GUI/mainframe.h
+set(SRCS
+	main.cpp
+	Chip8.cpp
+	GUI/mainframe.h
 )
 
 add_executable(Chip8 ${SRCS})

@@ -1,5 +1,10 @@
 #include "Chip8.h"
 #include <fstream>
+#include <cstdlib>
+#ifdef SPRITE
+  #include <iostream>
+#endif
+#include <iostream>
 
 
 Chip8::Chip8(const char* ROM_DIR) {
@@ -88,6 +93,442 @@ void Chip8::LoadFont() {
 	}
 }
 
-void Chip8::NextCycle() {
+void Chip8::Cycle() {
+	opcode = memory[PC] << 8 | memory[PC + 1];
 	
+	//Address
+	const unsigned short NNN = opcode & 0x0FFF;
+	//8-bit constant
+	const unsigned char  NN = opcode & 0x00FF;
+	//4-bit constant or right most bit
+	const unsigned char   N = opcode & 0x000F;
+	//left most bit
+	const unsigned char  hi = (opcode & 0xF000) >> 12;
+	//Register X
+	const unsigned char   X = (opcode & 0x0F00) >> 8;
+	//Register Y
+	const unsigned char   Y = (opcode & 0x00F0) >> 4;
+	
+	switch(hi) {
+		case 0x0:
+			switch(NN) {
+				case 0xE0: SYSCLS(); break;
+				case 0xEE: RET(); break;
+				case 0xFB: SYSSCR(4, 'x'); break;
+				case 0xFC: SYSSCR(-4, 'x'); break;
+				case 0xFD: SYSEXIT(); break;
+				case 0xFE: SYSMODE(1); break;
+				case 0xFF: SYSMODE(2); break;
+				case 0x00: NOP(); break;
+				default:
+					if((NN & 0xC0) == 0xC0) {
+						SYSSCR(N, 'y');
+					} else
+						UNKNOWN();
+			}
+			break;
+		case 0x1: JMP(NNN); break;
+		case 0x2: CALL(NNN); break;
+		case 0x3: JE(V[X], NN); break;
+		case 0x4: JNE(V[X], NN); break;
+		case 0x5: JE(V[X], V[Y]); break;
+		case 0x6: MOV(V[X], NN); break;
+		case 0x7: ADD(V[X], NN); break;
+		case 0x8:
+			switch(N) {
+				case 0x0: MOV(V[X], V[Y]); break;
+				case 0x1: OR(V[X], V[Y]); break;
+				case 0x2: AND(V[X], V[Y]); break;
+				case 0x3: XOR(V[X], V[Y]); break;
+				case 0x4: ADD(V[X], V[Y]); break;
+				case 0x5: SUB(V[X], V[Y]); break;
+				case 0x6: SHR(V[X]); break;
+				case 0x7: SUBR(V[X], V[Y]); break;
+				case 0xE: SHL(V[X]); break;
+				default:
+					UNKNOWN();
+					break;
+			};
+			break;
+		case 0x9: JNE(V[X], V[Y]); break;
+		case 0xA: MOV(NNN); break;
+		case 0xB: JMPR(NNN); break;
+		case 0xC: RDRAND(V[X], NN); break;
+		case 0xD: SYSDRW(X, Y, N); break;
+		case 0xE:
+			switch(NN) {
+				case 0x009E: JINE(V[X]); break;
+				case 0x00A1: JINNE(V[X]); break;
+				default:
+					UNKNOWN();
+					break;
+			};
+			break;
+		case 0xF:
+			switch(NN) {
+				case 0x07: MOV(V[X], delayTimer); break;
+				case 0x0A: IN(V[X]); break;
+				case 0x15: MOV(delayTimer, V[X]); break;
+				case 0x18: MOV(soundTimer, V[X]); break;
+				case 0x1E: ADD(V[X]); break;
+				case 0x29: SYSFONT(V[X]); break;
+				case 0x30: SYSSFONT(V[X]); break;
+				case 0x33: BLD(V[X]); break;
+				case 0x55: SAVE(X); break;
+				case 0x65: RSTOR(X); break;
+				case 0x75: SSAVE(X); break;
+				case 0x85: SRSTOR(X); break;
+				default:
+					UNKNOWN();
+					break;
+			};
+			break;
+		default:
+			UNKNOWN();
+			break;
+	};
+}
+
+void Chip8::UNKNOWN() {
+	std::cout << "Unknown OP: " << opcode << std::endl;
+}
+
+void Chip8::SYSMODE(char x) {
+	switch(x) {
+		case 1:
+			mode.width = CHIP8_WIDTH;
+			mode.height = CHIP8_HEIGHT;
+			mode.spriteSize = CHIP8_SPRITESIZE;
+			break;
+		case 2:
+			mode.width = SCHIP8_WIDTH;
+			mode.height = SCHIP8_HEIGHT;
+			mode.spriteSize = SCHIP8_SPRITESIZE;
+			break;
+	}
+	SYSCLS();
+}
+
+void Chip8::SYSSCR(int x, char axis) {
+	if(axis == 'y') {
+		//Shift x down
+		for(int j = mode.height - 1; j >= 0; j--) {
+			for(int i = 0; i < mode.width; i++) {
+				if((j-x) >= 0) {
+					display[i][j] = display[i][j-x];
+					if(display[i][j]) {
+						//drawPixel(i, j);
+					}
+					else {
+						//erasePixel(i, j);
+					}
+				} else {
+					display[i][j] = false;
+					//erasePixel(i, j);
+				}
+			}
+		}
+	} else if(axis == 'x') {
+		//Shift x left
+		if(x < 0) {
+			for(int i = 0; i < mode.width; i++) {
+				for(int j = 0; j < mode.height; j++) {
+					if((i-x) < mode.width) {
+						display[i][j] = display[i-x][j];
+						if(display[i][j]) {
+							//drawPixel(i, j);
+						}
+						else {
+							//erasePixel(i, j);
+						}
+					} else {
+						display[i][j] = false;
+						//erasePixel(i, j);
+					}
+				}
+			}
+		} else if(x > 0) {
+			//Shift x right
+			for(int i = mode.width - 1; i >= 0; i--) {
+				for(int j = 0; j < mode.height; j++) {
+					if((i-x) >= 0) {
+						display[i][j] = display[i-x][j];
+						if(display[i][j]) {
+							//drawPixel(i, j);
+						}
+						else {
+							//erasePixel(i, j);
+						}
+					} else {
+						display[i][j] = false;
+						//erasePixel(i, j);
+					}
+				}
+			}
+		}
+	}
+}
+
+void Chip8::SYSCLS() {
+	for(int i = 0; i < mode.width; i++) {
+		for(int j = 0; j < mode.height; j++) {
+			display[i][j] = false;
+		}
+	}
+	
+	//clearScreen
+}
+
+void Chip8::RET() {
+	PC = stack[--SP];
+}
+
+void Chip8::SYSEXIT() {
+	PC = PC - 2;
+}
+
+void Chip8::NOP() {}
+
+void Chip8::JMP(unsigned short address) {
+	PC = address;
+}
+
+void Chip8::CALL(unsigned short address) {
+	stack[SP++] = PC;
+	PC = address;
+}
+
+void Chip8::JE(unsigned short registerX, unsigned char K) {
+	if(registerX == K)
+		PC += 2;
+}
+
+void Chip8::JNE(unsigned short registerX, unsigned char K) {
+	if(registerX != K)
+		PC += 2;
+}
+
+void Chip8::JE(unsigned short registerX, unsigned short registerY) {
+	if(registerX == registerY)
+		PC += 2;
+}
+
+void Chip8::MOV(unsigned char& registerX, const unsigned char& K) {
+	registerX = K;
+}
+
+void Chip8::ADD(unsigned char& registerX, const unsigned char& K) {
+	registerX += K;
+}
+
+void Chip8::MOV(unsigned char& registerX, unsigned char& registerY) {
+	registerX = registerY;
+}
+
+void Chip8::OR(unsigned char& registerX, unsigned char& registerY) {
+	registerX = registerX | registerY;
+}
+
+void Chip8::AND(unsigned char& registerX, unsigned char& registerY) {
+	registerX = registerX & registerY;
+}
+
+void Chip8::XOR(unsigned char& registerX, unsigned char& registerY) {
+	registerX = registerX ^ registerY;
+}
+
+void Chip8::ADD(unsigned char& registerX, unsigned char& registerY) {
+	if((registerX + registerY) > 255) {
+		V[0xF] = 1;
+		char x;
+		x = registerX + registerY;
+		registerX = x;
+	} else {
+		V[0xF] = 0;
+		registerX += registerY;
+	}
+}
+
+void Chip8::SUB(unsigned char& registerX, unsigned char& registerY) {
+	if(registerX > registerY) {
+		V[0xF] = 1;
+		registerX -= registerY;
+	} else {
+		V[0xF] = 0;
+		registerX -= registerY;
+	}
+}
+
+void Chip8::SHR(unsigned char& registerX) {
+	V[0xF] = (registerX & 1);
+	registerX >>= 1;
+}
+
+void Chip8::SUBR(unsigned char& registerX, unsigned char& registerY) {
+	if(registerX < registerY) {
+		V[0xF] = 1;
+		registerX = registerY - registerX;
+	} else {
+		V[0xF] = 0;
+		registerX = registerY - registerX;
+	}
+}
+
+void Chip8::SHL(unsigned short registerX) {
+	V[0xF] = (registerX & 128);
+	registerX <<= 1;
+}
+
+void Chip8::JNE(unsigned char& registerX, unsigned char& registerY) {
+	if(registerX != registerY)
+		PC += 2;
+}
+
+void Chip8::MOV(const unsigned short address) {
+	I = address;
+}
+
+void Chip8::JMPR(const unsigned short address) {
+	PC = address + V[0];
+}
+
+void Chip8::RDRAND(unsigned char& registerX, const unsigned char& K) {
+	registerX = (rand() % 255) & K;
+}
+
+void Chip8::SYSDRW(unsigned char X, unsigned char Y, unsigned char N) {
+	unsigned short x, y, sprite, spriteHeight;
+	
+	//In SChip8 mode 16x16 sprites are drawn by setting
+	//By setting the N in DXYN to 0
+	//Sprites bigger than 8 pixels wide have pixel information
+	//stored on 2 memory addresses (memory[i] and memory[i + 1]
+	//Therefore on the loop below, i must be incremented by 2
+	spriteHeight = (N != 0 ? N : 16);
+	
+	//Register VF is set to 0 before drawing
+	//if collision is detected it's set to 1
+	V[0xF] = 0;
+	
+	y = V[Y];
+	
+	//Define SPRITE to debug sprite drawing
+	for(unsigned int i = 0; i < (spriteHeight <= 8 ? spriteHeight : spriteHeight * 2);
+												(spriteHeight > 8 ? i += 2 : i++), y++) {
+		
+		
+		sprite = (spriteHeight > 8 ?
+				(memory[I + i] << 8) | memory[I + i + 1]
+					: memory[I + i]);
+		
+		
+		y = (y % mode.height);
+		x = V[X];
+		for(int j = 0; j < mode.spriteSize; j++, x++){
+			x = (x % mode.width);
+			if((N == 0 ? (sprite & 0x8000) == 0x8000 : (sprite & 0x0080) == 0x0080)) {
+				if(display[x][y] == false) {
+					//drawPixel(x, y);
+					display[x][y] = true;
+					
+					#ifdef SPRITE
+						std::cout << "*";
+					#endif
+				} else if(display[x][y] == true) {
+					display[x][y] = false;
+					//erasePixel(x, y);
+					
+					V[0xF] = 1;
+					
+					#ifdef SPRITE
+						std::cout << "x";
+					#endif
+				}
+			} else {
+				#ifdef SPRITE
+					std::cout << " ";
+				#endif
+				}
+			sprite <<= 1;
+		}
+		#ifdef SPRITE
+			std::cout << "\n";
+		#endif
+	}
+}
+
+void Chip8::JINE(unsigned char& registerX) {
+	//if(input.is_key_down(registerX))
+		PC += 2;
+}
+
+void Chip8::JINNE(unsigned char& registerX) {
+	//if(!input.is_key_down(registerX))
+		PC += 2;
+}
+
+void Chip8::IN(unsigned char& registerX) {
+	unsigned char key;
+	//key = input.GetKeyPress();
+	
+	if(key != 16)
+		registerX = key;
+	else
+		PC -= 2;
+}
+
+void Chip8::ADD(unsigned char& registerX) {
+	I += registerX;
+}
+
+void Chip8::SYSFONT(unsigned char& registerX) {
+	unsigned char fontLocation;
+	fontLocation = 0x24;
+	for(int i = 0x0; i <= registerX; i++) {
+		if(i == registerX)
+			I = fontLocation;
+		else
+			fontLocation += 0x06;
+	}
+}
+
+void Chip8::SYSSFONT(unsigned char& registerX) {
+	unsigned int sfontLocation;
+	sfontLocation = 0x86;
+	for(int i = 0x0; i <= registerX; i++) {
+		if(i == registerX)
+			I = sfontLocation;
+		else
+			sfontLocation += 0xB;
+	}
+}
+
+void Chip8::BLD(unsigned char& registerX) {
+	memory[I] = (registerX / 100) % 10;
+	memory[I + 1] = (registerX / 10) % 10;
+	memory[I + 2] = (registerX / 1) % 10;
+}
+
+void Chip8::SAVE(const unsigned char& X) {
+	for(unsigned int i = 0; i <= X; i++) {
+		memory[I+i] = V[i];
+	}
+}
+
+void Chip8::RSTOR(const unsigned char& X) {
+	for(unsigned int i = 0; i <= X; i++) {
+		V[i] = memory[I + i];
+	}
+}
+
+void Chip8::SSAVE(const unsigned char& X) {
+	for(int i = 0; i <= X; i++) {
+		HP[i] = V[i];
+	}
+}
+
+void Chip8::SRSTOR(const unsigned char& X) {
+	for(int i = 0; i <= X; i++) {
+		V[i] = HP[i];
+	}
 }

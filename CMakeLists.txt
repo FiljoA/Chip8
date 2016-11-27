@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 
 project(Chip8)
 
@@ -16,6 +16,7 @@ include_directories("${PROJECT_BINARY_DIR}")
 set(SRCS
 	main.cpp
 	Chip8.cpp
+	Graphics.cpp
 	GUI/mainframe.h
 )
 
@@ -23,10 +24,11 @@ add_executable(Chip8 ${SRCS})
 
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/modules/")
 
-find_package(SFML 2 REQUIRED COMPONENTS window system)
+find_package(SFML 2 REQUIRED COMPONENTS graphics window system)
 if(SFML_FOUND)
 	include_directories(${SFML_INCLUDE_DIR})
 	target_link_libraries(Chip8 ${SFML_LIBRARIES})

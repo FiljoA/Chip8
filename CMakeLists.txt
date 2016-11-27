@@ -20,11 +20,12 @@ set(SRCS
 	GUI/mainframe.h
 )
 
+set(CMAKE_CXX_STANDARD 11)
+
 add_executable(Chip8 ${SRCS})
 
 
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/modules/")
 

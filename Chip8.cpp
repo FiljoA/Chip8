@@ -7,11 +7,18 @@
 #include <iostream>
 
 
-Chip8::Chip8(const char* ROM_DIR) {
+Chip8::Chip8(const char* ROM_DIR, uint8_t upscaleRatio) {
+	upscale = upscaleRatio;
+	app = new sf::RenderWindow(
+	         sf::VideoMode(CHIP8_WIDTH * upscale, CHIP8_HEIGHT * upscale),
+	         "Chip8");
+	pixel.setSize({upscale, upscale});
+	
 	LoadROM(ROM_DIR);
 	LoadFont();
 	
 	PC = ROM_ENTRY;
+	SYSCLS();
 }
 
 void Chip8::LoadROM(const char* ROM_DIR) {
@@ -276,7 +283,7 @@ void Chip8::SYSCLS() {
 		}
 	}
 	
-	//clearScreen
+	ClearScreen();
 }
 
 void Chip8::RET() {

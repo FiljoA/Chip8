@@ -1,5 +1,5 @@
 #pragma once
-#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
 #include <stdint.h>
 
 
@@ -18,12 +18,16 @@
 
 class Chip8 {
 public:
-	Chip8(const char* ROM_DIR);
+	Chip8(const char* ROM_DIR, uint8_t upscaleRatio);
 	
 	void Cycle();
 private:
 	void LoadROM(const char* ROM_DIR);
 	void LoadFont();
+	
+	void ClearScreen();
+	void DrawPixel(uint8_t x, uint8_t y);
+	void ErasePixel(uint8_t x, uint8_t y);
 	
 	//Memory
 	union {
@@ -49,6 +53,10 @@ private:
 		uint8_t height;
 		uint8_t spriteSize;
 	} mode;
+	
+	sf::RenderWindow* app;
+	sf::RectangleShape pixel;
+	uint8_t upscale;
 	
 	//Operations
 	void SYSSCR(int offset, char axis); //00CN, 00FB - 00FC

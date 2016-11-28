@@ -203,6 +203,11 @@ void Chip8::Cycle() {
 	};
 }
 
+void Chip8::UpdateTimers(uint8_t timePassed) {
+	delayTimer <= 0 ? delayTimer = 0 : delayTimer -= timePassed;
+	soundTimer <= 0 ? soundTimer = 0 : soundTimer -= timePassed;
+}
+
 void Chip8::UNKNOWN() {
 	std::cout << "Unknown OP: " << opcode << std::endl;
 }

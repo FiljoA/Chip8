@@ -21,6 +21,7 @@ public:
 	Chip8(const char* ROM_DIR, uint8_t upscaleRatio);
 	
 	void Cycle();
+	void UpdateTimers(uint8_t timePassed);
 private:
 	void LoadROM(const char* ROM_DIR);
 	void LoadFont();

@@ -218,13 +218,18 @@ void Chip8::SYSMODE(char x) {
 			mode.width = CHIP8_WIDTH;
 			mode.height = CHIP8_HEIGHT;
 			mode.spriteSize = CHIP8_SPRITESIZE;
+			mode.pixelSize = upscale;
 			break;
 		case 2:
 			mode.width = SCHIP8_WIDTH;
 			mode.height = SCHIP8_HEIGHT;
 			mode.spriteSize = SCHIP8_SPRITESIZE;
+			mode.pixelSize = upscale / 2;
 			break;
 	}
+	
+	pixel.setSize({mode.pixelSize, mode.pixelSize});
+	
 	SYSCLS();
 }
 

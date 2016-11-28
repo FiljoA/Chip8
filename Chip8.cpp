@@ -107,6 +107,8 @@ void Chip8::Cycle() {
 		std::cout << std::hex << PC << ":" << opcode << std::endl;
 	#endif
 	
+	PC += 2;
+	
 	//Address
 	const unsigned short NNN = opcode & 0x0FFF;
 	//8-bit constant

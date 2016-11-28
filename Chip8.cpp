@@ -497,7 +497,7 @@ void Chip8::ADD(unsigned char& registerX) {
 
 void Chip8::SYSFONT(unsigned char& registerX) {
 	unsigned char fontLocation;
-	fontLocation = 0x24;
+	fontLocation = FONT_LOCATION + 1;
 	for(int i = 0x0; i <= registerX; i++) {
 		if(i == registerX)
 			I = fontLocation;
@@ -508,7 +508,7 @@ void Chip8::SYSFONT(unsigned char& registerX) {
 
 void Chip8::SYSSFONT(unsigned char& registerX) {
 	unsigned int sfontLocation;
-	sfontLocation = 0x86;
+	sfontLocation = FONT_LOCATION + 0x62;
 	for(int i = 0x0; i <= registerX; i++) {
 		if(i == registerX)
 			I = sfontLocation;

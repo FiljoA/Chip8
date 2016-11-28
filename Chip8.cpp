@@ -18,6 +18,7 @@ Chip8::Chip8(const char* ROM_DIR, uint8_t upscaleRatio) {
 	LoadFont();
 	
 	PC = ROM_ENTRY;
+	SYSMODE(1);
 	SYSCLS();
 }
 

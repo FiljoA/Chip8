@@ -231,14 +231,14 @@ void Chip8::SYSSCR(int x, char axis) {
 				if((j-x) >= 0) {
 					display[i][j] = display[i][j-x];
 					if(display[i][j]) {
-						//drawPixel(i, j);
+						DrawPixel(i, j);
 					}
 					else {
-						//erasePixel(i, j);
+						ErasePixel(i, j);
 					}
 				} else {
 					display[i][j] = false;
-					//erasePixel(i, j);
+					ErasePixel(i, j);
 				}
 			}
 		}
@@ -250,14 +250,14 @@ void Chip8::SYSSCR(int x, char axis) {
 					if((i-x) < mode.width) {
 						display[i][j] = display[i-x][j];
 						if(display[i][j]) {
-							//drawPixel(i, j);
+							DrawPixel(i, j);
 						}
 						else {
-							//erasePixel(i, j);
+							ErasePixel(i, j);
 						}
 					} else {
 						display[i][j] = false;
-						//erasePixel(i, j);
+						ErasePixel(i, j);
 					}
 				}
 			}
@@ -268,14 +268,14 @@ void Chip8::SYSSCR(int x, char axis) {
 					if((i-x) >= 0) {
 						display[i][j] = display[i-x][j];
 						if(display[i][j]) {
-							//drawPixel(i, j);
+							DrawPixel(i, j);
 						}
 						else {
-							//erasePixel(i, j);
+							ErasePixel(i, j);
 						}
 					} else {
 						display[i][j] = false;
-						//erasePixel(i, j);
+						ErasePixel(i, j);
 					}
 				}
 			}
@@ -442,7 +442,7 @@ void Chip8::SYSDRW(unsigned char X, unsigned char Y, unsigned char N) {
 			x = (x % mode.width);
 			if((N == 0 ? (sprite & 0x8000) == 0x8000 : (sprite & 0x0080) == 0x0080)) {
 				if(display[x][y] == false) {
-					//drawPixel(x, y);
+					DrawPixel(x, y);
 					display[x][y] = true;
 					
 					#ifdef SPRITE
@@ -450,7 +450,7 @@ void Chip8::SYSDRW(unsigned char X, unsigned char Y, unsigned char N) {
 					#endif
 				} else if(display[x][y] == true) {
 					display[x][y] = false;
-					//erasePixel(x, y);
+					ErasePixel(x, y);
 					
 					V[0xF] = 1;
 					

@@ -21,6 +21,7 @@ set(SRCS
 )
 
 set(CMAKE_CXX_STANDARD 11)
+add_definitions(-DDEBUG_INS)
 
 add_executable(Chip8 ${SRCS})
 

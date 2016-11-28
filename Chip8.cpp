@@ -103,6 +103,10 @@ void Chip8::LoadFont() {
 void Chip8::Cycle() {
 	opcode = memory[PC] << 8 | memory[PC + 1];
 	
+	#ifdef DEBUG_INS
+		std::cout << std::hex << PC << ":" << opcode << std::endl;
+	#endif
+	
 	//Address
 	const unsigned short NNN = opcode & 0x0FFF;
 	//8-bit constant

@@ -29,11 +29,17 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/modules/")
 
+if(WIN32)
+	set(SFML_STATIC_LIBRARIES TRUE)
+endif()
+
 find_package(SFML 2 REQUIRED COMPONENTS graphics window system)
 if(SFML_FOUND)
 	include_directories(${SFML_INCLUDE_DIR})
+	if(WIN32)
+		target_link_libraries(Chip8 ${SFML_DEPENDENCIES})
+	endif()
 	target_link_libraries(Chip8 ${SFML_LIBRARIES})
-	
 else()
 	message("SFML 2.X was not found")
 endif()

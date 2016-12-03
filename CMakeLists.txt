@@ -17,7 +17,6 @@ set(SRCS
 	main.cpp
 	Chip8.cpp
 	Graphics.cpp
-	GUI/mainframe.h
 )
 
 set(CMAKE_CXX_STANDARD 11)
@@ -34,15 +33,7 @@ find_package(SFML 2 REQUIRED COMPONENTS graphics window system)
 if(SFML_FOUND)
 	include_directories(${SFML_INCLUDE_DIR})
 	target_link_libraries(Chip8 ${SFML_LIBRARIES})
+	
 else()
 	message("SFML 2.X was not found")
-endif()
-
-find_package(Qt5Widgets)
-if(Qt5Widgets_FOUND)
-	message("-- Found Qt ${Qt5Widgets_VERSION}")
-	include_directories(${Qt5Widgets_INCLUDE_DIRS})
-	target_link_libraries(Chip8 ${Qt5Widgets_LIBRARIES})
-else()
-	message("Qt5 was not found")
 endif()

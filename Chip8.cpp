@@ -22,6 +22,11 @@ Chip8::Chip8(const char* ROM_DIR, uint8_t upscaleRatio) {
 	SYSCLS();
 }
 
+Chip8::~Chip8() {
+	app->close();
+	delete(app);
+}
+
 void Chip8::LoadROM(const char* ROM_DIR) {
 	std::ifstream ROM;
 	ROM.open(ROM_DIR, std::ios::binary);

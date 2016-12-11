@@ -64,6 +64,7 @@ endif()
 set(FIND_SFML_PATHS
     ${SFML_ROOT}
     $ENV{SFML_ROOT}
+	"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC"
     ~/Library/Frameworks
     /Library/Frameworks
     /usr/local
@@ -363,4 +364,3 @@ endif()
 if(SFML_FOUND AND NOT SFML_FIND_QUIETLY)
     message(STATUS "Found SFML ${SFML_VERSION_MAJOR}.${SFML_VERSION_MINOR}.${SFML_VERSION_PATCH} in ${SFML_INCLUDE_DIR}")
 endif()
-

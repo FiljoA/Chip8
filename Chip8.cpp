@@ -12,7 +12,7 @@ Chip8::Chip8(const char* ROM_DIR, uint8_t upscaleRatio) {
 	app = new sf::RenderWindow(
 	         sf::VideoMode(CHIP8_WIDTH * upscale, CHIP8_HEIGHT * upscale),
 	         "Chip8");
-	pixel.setSize({upscale, upscale});
+	pixel.setSize({static_cast<float>(upscale), static_cast<float>(upscale)});
 	
 	LoadROM(ROM_DIR);
 	LoadFont();

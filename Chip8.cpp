@@ -437,20 +437,17 @@ void Chip8::SYSDRW(unsigned char X, unsigned char Y, unsigned char N) {
 	y = V[Y];
 	
 	//Define SPRITE to debug sprite drawing
-	for(unsigned int i = 0; i < (spriteHeight <= 8 ? spriteHeight : spriteHeight * 2);
-												(spriteHeight > 8 ? i += 2 : i++), y++) {
-		
-		
-		sprite = (spriteHeight > 8 ?
-				(memory[I + i] << 8) | memory[I + i + 1]
-					: memory[I + i]);
-		
+	for(unsigned int i = 0; i < spriteHeight; i++, y++) {
+		sprite = N == 0 ?
+				(memory[I + i * 2] << 8) | memory[I + i * 2 + 1]
+				: memory[I + i];
 		
 		y = (y % mode.height);
 		x = V[X];
-		for(int j = 0; j < mode.spriteSize; j++, x++){
+
+		for(int j = 0; j < (N != 0 ? 8 : 16); j++, x++){
 			x = (x % mode.width);
-			if((N == 0 ? (sprite & 0x8000) == 0x8000 : (sprite & 0x0080) == 0x0080)) {
+			if(N == 0 ? (sprite & 0x8000) == 0x8000 : (sprite & 0x0080) == 0x0080) {
 				if(display[x][y] == false) {
 					DrawPixel(x, y);
 					display[x][y] = true;

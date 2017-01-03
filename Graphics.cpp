@@ -7,13 +7,13 @@ void Chip8::ClearScreen() {
 
 void Chip8::DrawPixel(uint8_t x, uint8_t y) {
 	pixel.setFillColor({255, 255, 255, 255});
-	pixel.setPosition(x * upscale - upscale, y * upscale - upscale);
+	pixel.setPosition(x * mode.pixelSize, y * mode.pixelSize);
 	app->draw(pixel);
 	app->display();
 }
 void Chip8::ErasePixel(uint8_t x, uint8_t y) {
 	pixel.setFillColor({0, 0, 0, 255});
-	pixel.setPosition(x * upscale - upscale, y * upscale - upscale);
+	pixel.setPosition(x * mode.pixelSize, y * mode.pixelSize);
 	app->draw(pixel);
 	app->display();
 }

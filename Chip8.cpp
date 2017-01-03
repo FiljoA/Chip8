@@ -515,7 +515,7 @@ void Chip8::SYSFONT(unsigned char& registerX) {
 
 void Chip8::SYSSFONT(unsigned char& registerX) {
 	uint16_t sfontLocation;
-	sfontLocation = FONT_LOCATION + 0x62;
+	sfontLocation = FONT_LOCATION + 0x61;
 	for(int i = 0x0; i <= registerX; i++) {
 		if(i == registerX)
 			I = sfontLocation;

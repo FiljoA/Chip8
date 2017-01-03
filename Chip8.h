@@ -29,6 +29,7 @@ private:
 	void LoadROM(const char* ROM_DIR);
 	void LoadFont();
 	
+	void FlipScreen();
 	void ClearScreen();
 	void DrawPixel(uint8_t x, uint8_t y);
 	void ErasePixel(uint8_t x, uint8_t y);

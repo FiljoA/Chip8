@@ -481,6 +481,8 @@ void Chip8::SYSDRW(unsigned char X, unsigned char Y, unsigned char N) {
 			std::cout << "\n";
 		#endif
 	}
+
+	FlipScreen();
 }
 
 void Chip8::JINE(unsigned char& registerX) {
